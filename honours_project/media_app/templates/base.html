@@ -4,15 +4,17 @@
 
 <html>
   <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Media Tracker{% endblock %}</title>
     <link
       rel="shortcut icon"
       type="image/png"
       href="{% static 'favicon.ico' %}"
     />
-    <meta charset="UTF-8" />
-    <title>{% block title %}Media Tracker{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}" />
   </head>
   <body>
-    {% block content %}{% endblock %}
+    {% include 'sidebar.html' %}
+    <div class="content">{% block content %}{% endblock %}</div>
   </body>
 </html>
