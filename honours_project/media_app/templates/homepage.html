@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block content %}
 <html>
   <body>
     {% if user.is_authenticated %}
     <p>Welcome, {{ user.username }}!</p>
     {% else %}
     <p>Please log in</p>
-    {% endif %}
+    <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+    {% endif %} {% endblock %}
   </body>
 </html>

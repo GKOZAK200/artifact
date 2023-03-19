@@ -17,22 +17,16 @@ def login_view(request):
     return redirect('home')
 
 def login_view(request):
-    form = AuthenticationForm()
     if request.method == 'POST':
-        form = AuthenticationForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('')
-            else:
-                form.add_error(None, 'Invalid username or password')
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('home')
         else:
-            form = AuthenticationForm()
-
-    return render(request, 'login.html', {'form': form })
+            messages.error(request, 'Invalid username or password.')
+    return render(request, 'login.html')
 
 def register_request(request):
     if request.method == "POST":
