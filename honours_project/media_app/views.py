@@ -5,12 +5,16 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import NewUserForm
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
 def home(request):
-    template = loader.get_template('homepage.html')
-    return HttpResponse(template.render())
+    return render(request, 'homepage.html', {'user': request.user})
+
+@login_required
+def login_view(request):
+    return redirect('home')
 
 def login_view(request):
     form = AuthenticationForm()
