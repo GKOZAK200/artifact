@@ -4,6 +4,11 @@
   <body>
     {% if user.is_authenticated %}
     <p>Welcome, {{ user.username }}!</p>
+    <form action="{% url 'logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit">Logout</button>
+    </form>
+
     {% else %}
     <p>Please log in</p>
     <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
