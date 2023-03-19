@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from django.template import loader
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
+from .forms import NewUserForm
+from django.contrib import messages
 
 # Create your views here.
 
@@ -27,3 +29,15 @@ def login_view(request):
             form = AuthenticationForm()
 
     return render(request, 'login.html', {'form': form })
+
+def register_request(request):
+    if request.method == "POST":
+        form = NewUserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Registration successful")
+            return redirect('home')
+        messages.error(request, "Unsuccessful registration, invalid information")
+    form = NewUserForm()
+    return render (request=request, template_name='register.html', context={"register_form": form })
