@@ -10,8 +10,9 @@
     </form>
 
     {% else %}
-    <p>Please log in</p>
+    <p>Please log in or register</p>
     <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+    <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
     {% endif %} {% endblock %}
   </body>
 </html>
