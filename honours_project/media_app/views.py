@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.template import loader
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import NewUserForm
 from django.contrib import messages
@@ -45,3 +45,7 @@ def register_request(request):
         messages.error(request, "Unsuccessful registration, invalid information")
     form = NewUserForm()
     return render (request=request, template_name='register.html', context={"register_form": form })
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')
