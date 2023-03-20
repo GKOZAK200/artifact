@@ -1,6 +1,11 @@
 asgiref==3.6.0
+beautifulsoup4==4.11.2
+crispy-bootstrap4==2022.1
 Django==4.1.7
+django-bootstrap4==22.3
+django-crispy-forms==2.0
 python-decouple==3.8
 python-dotenv==1.0.0
+soupsieve==2.4
 sqlparse==0.4.3
 tzdata==2022.7
