@@ -1,0 +1,12 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Search Results</h1>
+
+{% if media %} {% for medium in media %}
+<div>
+  <h2>{{ medium.title }}</h2>
+  <img src="{{ medium.poster_url }}" alt="{{ medium.title }}" />
+  <p>{{ medium.description }}</p>
+</div>
+{% endfor %} {% else %}
+<p>No results found.</p>
+{% endif %} {% endblock %}

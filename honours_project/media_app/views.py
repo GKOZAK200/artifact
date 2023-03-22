@@ -6,6 +6,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from .forms import NewUserForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+import requests
 
 # Create your views here.
 
@@ -42,3 +43,21 @@ def register_request(request):
 def logout_view(request):
     logout(request)
     return redirect('home')
+
+def search_media(request):
+    if request.method == 'POST':
+        # Get search query from the search bar
+        query = request.POST.get('search')
+
+        # Make request to APIs to search for media
+        #response = requests.get('https://api.example.com/media', params={'q': query})
+
+        # Parse the response and get the media information
+        #media = response.json().get('results')
+
+        # Render the results
+        media = ""
+        return render(request, 'search_results.html', {'media': media})
+
+    # If the request method is GET, render the template
+    return render(request, 'search.html')
