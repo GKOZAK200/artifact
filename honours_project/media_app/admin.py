@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Media
+from .models import Media, MediaList
 
 # Register your models here.
 
@@ -9,3 +9,8 @@ class MediaAdmin(admin.ModelAdmin):
     search_fields = ('title', 'media_type', 'release_year')
 
 admin.site.register(Media, MediaAdmin)
+
+class MediaListAdmin(admin.ModelAdmin):
+    list_display = ('user',)
+
+admin.site.register(MediaList, MediaListAdmin)
