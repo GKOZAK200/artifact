@@ -61,3 +61,9 @@ def search_media(request):
 
     # If the request method is GET, render the template
     return render(request, 'search.html')
+
+def add_to_list(request):
+    if request.method == 'POST':
+        title = request.POST['title']
+        # Add movie to list
+        return redirect('my_list')
