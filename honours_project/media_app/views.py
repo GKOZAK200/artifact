@@ -7,6 +7,7 @@ from .forms import NewUserForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 import requests
+from decouple import config
 
 # Create your views here.
 
@@ -49,14 +50,13 @@ def search_media(request):
         # Get search query from the search bar
         query = request.POST.get('search')
 
-        # Make request to APIs to search for media
-        #response = requests.get('https://api.example.com/media', params={'q': query})
+        # Make request to OMDb API to search for movies
+        response = requests.get('http://www.omdbapi.com/', params={'s': query, 'type': 'movie', 'apikey': config("OMDB_KEY")})
 
-        # Parse the response and get the media information
-        #media = response.json().get('results')
+        # Parse the response and get the movie information
+        media = response.json().get('Search')[:5] # only include the first 5 items
 
         # Render the results
-        media = ""
         return render(request, 'search_results.html', {'media': media})
 
     # If the request method is GET, render the template

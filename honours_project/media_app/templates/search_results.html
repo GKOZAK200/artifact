@@ -1,12 +1,28 @@
 {% extends 'base.html' %} {% block content %}
-<h1>Search Results</h1>
+<div class="container">
+  <h1>Search Results</h1>
 
-{% if media %} {% for medium in media %}
-<div>
-  <h2>{{ medium.title }}</h2>
-  <img src="{{ medium.poster_url }}" alt="{{ medium.title }}" />
-  <p>{{ medium.description }}</p>
+  {% if media %}
+  <div class="row">
+    {% for medium in media %}
+    <div class="col-12 col-md-2">
+      <div class="card mb-4 box-shadow">
+        <img
+          class="card-img-top"
+          src="{{ medium.Poster }}"
+          alt="{{ medium.Title }}"
+          style="width: 100%"
+        />
+        <div class="card-body">
+          <h5 class="card-title">{{ medium.Title }}</h5>
+          <p class="card-text">{{ medium.Plot }}</p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>No results found.</p>
+  {% endif %}
 </div>
-{% endfor %} {% else %}
-<p>No results found.</p>
-{% endif %} {% endblock %}
+{% endblock %}
