@@ -45,19 +45,25 @@ def logout_view(request):
     logout(request)
     return redirect('home')
 
+import requests
+from decouple import config
+
+
 def search_media(request):
     if request.method == 'POST':
         # Get search query from the search bar
         query = request.POST.get('search')
 
         # Make request to OMDb API to search for movies
-        response = requests.get('http://www.omdbapi.com/', params={'s': query, 'type': 'movie', 'apikey': config("OMDB_KEY")})
+        movie_response = requests.get('http://www.omdbapi.com/', params={'s': query, 'type': 'movie', 'apikey': config("OMDB_KEY")})
+        movie_results = movie_response.json().get('Search')[:5] # only include the first 5 items
 
-        # Parse the response and get the movie information
-        media = response.json().get('Search')[:5] # only include the first 5 items
+        # Make request to OMDb API to search for TV shows
+        tv_response = requests.get('http://www.omdbapi.com/', params={'s': query, 'type': 'series', 'apikey': config("OMDB_KEY")})
+        tv_results = tv_response.json().get('Search')[:5] # only include the first 5 items
 
         # Render the results
-        return render(request, 'search_results.html', {'media': media})
+        return render(request, 'search_results.html', {'media': {'movies': movie_results, 'tv_shows': tv_results}})
 
     # If the request method is GET, render the template
     return render(request, 'search.html')

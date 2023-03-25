@@ -2,9 +2,10 @@
 <div class="container">
   <h1>Search Results</h1>
 
-  {% if media %}
+  {% if media.movies %}
+  <h2>Movies</h2>
   <div class="row">
-    {% for medium in media %}
+    {% for medium in media.movies %}
     <div class="col-12 col-md-2">
       <div class="card mb-4 box-shadow">
         <img
@@ -18,7 +19,7 @@
           <p class="card-text">{{ medium.Plot }}</p>
           <form method="POST" action="{% url 'add_to_list' %}">
             {% csrf_token %}
-            <input type="hidden" name="title" value="{{ medium.title }}" />
+            <input type="hidden" name="title" value="{{ medium.Title }}" />
             <button type="submit" class="btn btn-primary">Add to List</button>
           </form>
         </div>
@@ -26,7 +27,32 @@
     </div>
     {% endfor %}
   </div>
-  {% else %}
+  {% endif %} {% if media.tv_shows %}
+  <h2>TV Shows</h2>
+  <div class="row mt-4">
+    {% for medium in media.tv_shows %}
+    <div class="col-12 col-md-2">
+      <div class="card mb-4 box-shadow">
+        <img
+          class="card-img-top"
+          src="{{ medium.Poster }}"
+          alt="{{ medium.Title }}"
+          style="width: 100%"
+        />
+        <div class="card-body">
+          <h5 class="card-title">{{ medium.Title }}</h5>
+          <p class="card-text">{{ medium.Plot }}</p>
+          <form method="POST" action="{% url 'add_to_list' %}">
+            {% csrf_token %}
+            <input type="hidden" name="title" value="{{ medium.Title }}" />
+            <button type="submit" class="btn btn-primary">Add to List</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %} {% if not media.movies and not media.tv_shows %}
   <p>No results found.</p>
   {% endif %}
 </div>
