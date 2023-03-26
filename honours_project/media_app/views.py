@@ -77,13 +77,15 @@ def search_media(request):
         google_books_api_key = config("GOOGLE_BOOKS_KEY")
         google_books_url = f"https://www.googleapis.com/books/v1/volumes?key={google_books_api_key}&q={query}&maxResults=5"
         google_books_response = requests.get(google_books_url)
-        google_books_data = json.loads(google_books_response.text)
-        books = google_books_data.get("items", [])
+        google_books_data = google_books_response.json()
+        print (google_books_data)
 
         # Parse the responses and get the media information
         movies = movie_response.json().get('Search')[:5] if movie_response.ok else []
         tv_shows = tv_response.json().get('Search')[:5] if tv_response.ok else []
         games = igdb_response.json() if igdb_response.ok else []
+        books = google_books_data.get('items', []) if google_books_response.ok else []
+        print(books)
 
         media = {'movies': movies, 'tv_shows': tv_shows, 'games': games, 'books': books}
 
