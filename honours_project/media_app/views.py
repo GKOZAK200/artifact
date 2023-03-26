@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 import requests
 from decouple import config
+import json
 
 # Create your views here.
 
@@ -48,38 +49,6 @@ def logout_view(request):
 import requests
 from decouple import config
 
-
-import requests
-
-def search_media(request):
-    if request.method == 'POST':
-        # Get search query from the search bar
-        query = request.POST.get('search')
-
-        # Make request to OMDb API to search for movies
-        movie_response = requests.get('http://www.omdbapi.com/', params={'s': query, 'type': 'movie', 'apikey': config("OMDB_KEY")})
-
-        # Make request to OMDb API to search for TV shows
-        tv_response = requests.get('http://www.omdbapi.com/', params={'s': query, 'type': 'series', 'apikey': config("OMDB_KEY")})
-
-        # Make request to IGDB API to search for games
-        igdb_response = requests.post('https://api.igdb.com/v4/games', headers={
-            'Client-ID': config("IGDB_CLIENT_ID"),
-            'Authorization': f'Bearer {config("IGDB_ACCESS_TOKEN")}'
-        }, data=f'search "{query}"; fields name, cover.url, summary; limit 5;')
-
-        # Parse the responses and get the media information
-        movies = movie_response.json().get('Search')[:5] if movie_response.ok else []
-        tv_shows = tv_response.json().get('Search')[:5] if tv_response.ok else []
-        games = igdb_response.json() if igdb_response.ok else []
-
-        # Render the results
-        return render(request, 'search_results.html', {'movies': movies, 'tv_shows': tv_shows, 'games': games})
-
-    # If the request method is GET, render the template
-    return render(request, 'search.html')
-import requests
-
 def search_media(request):
     if request.method == 'POST':
         # Get search query from the search bar
@@ -104,14 +73,19 @@ def search_media(request):
         igdb_data = igdb_response.json()
         games = igdb_data
 
+        # Make a request to Google Books for books
+        google_books_api_key = config("GOOGLE_BOOKS_KEY")
+        google_books_url = f"https://www.googleapis.com/books/v1/volumes?key={google_books_api_key}&q={query}&maxResults=5"
+        google_books_response = requests.get(google_books_url)
+        google_books_data = json.loads(google_books_response.text)
+        books = google_books_data.get("items", [])
+
         # Parse the responses and get the media information
         movies = movie_response.json().get('Search')[:5] if movie_response.ok else []
         tv_shows = tv_response.json().get('Search')[:5] if tv_response.ok else []
         games = igdb_response.json() if igdb_response.ok else []
 
-
-
-        media = {'movies': movies, 'tv_shows': tv_shows, 'games': games}
+        media = {'movies': movies, 'tv_shows': tv_shows, 'games': games, 'books': books}
 
         # Render the results
         return render(request, 'search_results.html', {'media': media})
