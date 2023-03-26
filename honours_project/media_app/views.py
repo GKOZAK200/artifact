@@ -87,24 +87,35 @@ def search_media(request):
 
         # Make request to OMDb API to search for movies
         movie_response = requests.get('http://www.omdbapi.com/', params={'s': query, 'type': 'movie', 'apikey': config("OMDB_KEY")})
+        movie_data = movie_response.json()
+        movies = movie_data.get('Search', [])
 
         # Make request to OMDb API to search for TV shows
         tv_response = requests.get('http://www.omdbapi.com/', params={'s': query, 'type': 'series', 'apikey': config("OMDB_KEY")})
+        tv_data = tv_response.json()
+        tv_shows = tv_data.get('Search', [])
 
         # Make request to IGDB API to search for games
         igdb_response = requests.post('https://api.igdb.com/v4/games', headers={
             'Client-ID': config("IGDB_CLIENT_ID"),
             'Authorization': f'Bearer {config("IGDB_ACCESS_TOKEN")}'
         }, data=f'search "{query}"; fields name, cover.url, summary; limit 5;')
+        print(igdb_response.json())
+        igdb_data = igdb_response.json()
+        games = igdb_data
 
         # Parse the responses and get the media information
         movies = movie_response.json().get('Search')[:5] if movie_response.ok else []
         tv_shows = tv_response.json().get('Search')[:5] if tv_response.ok else []
         games = igdb_response.json() if igdb_response.ok else []
 
-        # Render the results
-        return render(request, 'search_results.html', {'movies': movies, 'tv_shows': tv_shows, 'games': games})
 
+
+        media = {'movies': movies, 'tv_shows': tv_shows, 'games': games}
+
+        # Render the results
+        return render(request, 'search_results.html', {'media': media})
+        
     # If the request method is GET, render the template
     return render(request, 'search.html')
 
