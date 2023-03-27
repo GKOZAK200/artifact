@@ -58,11 +58,24 @@ def search_media(request):
         movie_response = requests.get('http://www.omdbapi.com/', params={'s': query, 'type': 'movie', 'apikey': config("OMDB_KEY")})
         movie_data = movie_response.json()
         movies = movie_data.get('Search', [])
+        print (movies)
+        for movie in movies:
+            # Make a request for each individual movie to get the plot
+            movie_id = movie['imdbID']
+            movie_detail_response = requests.get('http://www.omdbapi.com/', params={'i': movie_id, 'apikey': config("OMDB_KEY")})
+            movie_detail_data = movie_detail_response.json()
+            movie['Plot'] = movie_detail_data.get('Plot', '')
 
         # Make request to OMDb API to search for TV shows
         tv_response = requests.get('http://www.omdbapi.com/', params={'s': query, 'type': 'series', 'apikey': config("OMDB_KEY")})
         tv_data = tv_response.json()
         tv_shows = tv_data.get('Search', [])
+        for tv_show in tv_shows:
+            # Make a request for each individual TV show to get the plot
+            tv_show_id = tv_show['imdbID']
+            tv_show_detail_response = requests.get('http://www.omdbapi.com/', params={'i': tv_show_id, 'apikey': config("OMDB_KEY")})
+            tv_show_detail_data = tv_show_detail_response.json()
+            tv_show['Plot'] = tv_show_detail_data.get('Plot', '')
 
         # Make request to IGDB API to search for games
         igdb_response = requests.post('https://api.igdb.com/v4/games', headers={
