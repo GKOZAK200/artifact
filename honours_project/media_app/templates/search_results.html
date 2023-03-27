@@ -31,7 +31,7 @@
         <img class="card-img-top" src="{{ medium.Poster }}" alt="{{ medium.Title }}" style="width: 100%" />
         <div class="card-body">
           <h5 class="card-title">{{ medium.Title }}</h5>
-          <p class="card-text">{{ medium.Plot }}</p>
+          <p class="card-text">{{ medium.Plot|slice:":100" }}{% if medium.Plot|length > 100 %}...{% endif %}</p>
           <form method="POST" action="{% url 'add_to_list' %}">
             {% csrf_token %}
             <input type="hidden" name="title" value="{{ medium.Title }}" />
