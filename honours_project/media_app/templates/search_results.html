@@ -11,7 +11,7 @@
         <img class="card-img-top" src="{{ medium.Poster }}" alt="{{ medium.Title }}" style="width: 100%" />
         <div class="card-body">
           <h5 class="card-title">{{ medium.Title }}</h5>
-          <p class="card-text">{{ medium.Plot }}</p>
+          <p class="card-text">{{ medium.Plot|slice:":100" }}{% if medium.Plot|length > 100 %}...{% endif %}</p>
           <form method="POST" action="{% url 'add_to_list' %}">
             {% csrf_token %}
             <input type="hidden" name="title" value="{{ medium.Title }}" />
@@ -51,7 +51,7 @@
         <img class="card-img-top" src="{{ medium.cover.url }}" alt="{{ medium.name }}" style="width: 100%" />
         <div class="card-body">
           <h5 class="card-title">{{ medium.name }}</h5>
-          <p class="card-text">{{ medium.summary }}</p>
+          <p class="card-text">{{ medium.summary|slice:":100" }}{% if medium.summary|length > 100 %}...{% endif %}</p>
           <form method="POST" action="{% url 'add_to_list' %}">
             {% csrf_token %}
             <input type="hidden" name="title" value="{{ medium.name }}" />
@@ -68,15 +68,10 @@
     {% for medium in media.books %}
     <div class="col-12 col-md-2">
       <div class="card mb-4 box-shadow">
-        <img
-          class="card-img-top"
-          src="{{ medium.volumeInfo.imageLinks.thumbnail }}"
-          alt="{{ medium.volumeInfo.title }}"
-          style="width: 100%"
-        />
+        <img class="card-img-top" src="{{ medium.volumeInfo.imageLinks.thumbnail }}" alt="{{ medium.volumeInfo.title }}" style="width: 100%" />
         <div class="card-body">
           <h5 class="card-title">{{ medium.volumeInfo.title }}</h5>
-          <p class="card-text">{{ medium.volumeInfo.description }}</p>
+          <p class="card-text">{{ medium.volumeInfo.description|slice:":100" }}{% if medium.volumeInfo.description|length > 100 %}...{% endif %}</p>
           <form method="POST" action="{% url 'add_to_list' %}">
             {% csrf_token %}
             <input type="hidden" name="title" value="{{ medium.volumeInfo.title }}" />
