@@ -93,14 +93,21 @@ def search_media(request):
         google_books_data = google_books_response.json()
         print (google_books_data)
 
+        # Make a request to MusicBrainz API to search for albums
+        musicbrainz_response = requests.get('https://musicbrainz.org/ws/2/release-group/', params={'query': query, 'type': 'album', 'limit': 5})
+        print(musicbrainz_response)
+        musicbrainz_data = musicbrainz_response.json()
+        print(musicbrainz_data)
+        
+        
         # Parse the responses and get the media information
         movies = movie_data.get('Search', [])[:5] if movie_response.ok and movie_data.get('Response') == 'True' else []
         tv_shows = tv_data.get('Search', [])[:5] if tv_response.ok and tv_data.get('Response') == 'True' else []
         games = igdb_response.json() if igdb_response.ok else []
         books = google_books_data.get('items', []) if google_books_response.ok and google_books_data.get('totalItems', 0) > 0 else []
+        albums = musicbrainz_data.get('release-groups', [])[:5] if musicbrainz_response.ok and musicbrainz_data.get('release-groups') else []
 
-
-        media = {'movies': movies, 'tv_shows': tv_shows, 'games': games, 'books': books}
+        media = {'movies': movies, 'tv_shows': tv_shows, 'games': games, 'books': books, 'albums': albums}
 
         # Render the results
         return render(request, 'search_results.html', {'media': media})

@@ -82,6 +82,26 @@
     </div>
     {% endfor %}
   </div>
+  {% endif %} {% if media.albums %}
+  <h2>Albums</h2>
+  <div class="row mt-4">
+    {% for medium in media.albums %}
+    <div class="col-12 col-md-2">
+      <div class="card mb-4 box-shadow">
+        <img class="card-img-top" src="{{ medium.cover_art }}" alt="{{ medium.title }}" style="width: 100%" />
+        <div class="card-body">
+          <h5 class="card-title">{{ medium.title }}</h5>
+          <p class="card-text">{{ medium.release_date }}</p>
+          <form method="POST" action="{% url 'add_to_list' %}">
+            {% csrf_token %}
+            <input type="hidden" name="title" value="{{ medium.title }}" />
+            <button type="submit" class="btn btn-primary">Add to List</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
   {% endif %} {% if not media.movies and not media.tv_shows and not media.games and not media.books %}
   <p>No results found.</p>
   {% endif %}
