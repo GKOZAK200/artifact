@@ -81,11 +81,11 @@ def search_media(request):
         print (google_books_data)
 
         # Parse the responses and get the media information
-        movies = movie_response.json().get('Search')[:5] if movie_response.ok else []
-        tv_shows = tv_response.json().get('Search')[:5] if tv_response.ok else []
+        movies = movie_data.get('Search', [])[:5] if movie_response.ok and movie_data.get('Response') == 'True' else []
+        tv_shows = tv_data.get('Search', [])[:5] if tv_response.ok and tv_data.get('Response') == 'True' else []
         games = igdb_response.json() if igdb_response.ok else []
-        books = google_books_data.get('items', []) if google_books_response.ok else []
-        print(books)
+        books = google_books_data.get('items', []) if google_books_response.ok and google_books_data.get('totalItems', 0) > 0 else []
+
 
         media = {'movies': movies, 'tv_shows': tv_shows, 'games': games, 'books': books}
 
