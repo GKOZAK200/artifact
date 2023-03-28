@@ -88,7 +88,7 @@
     {% for medium in media.albums %}
     <div class="col-12 col-md-2">
       <div class="card mb-4 box-shadow">
-        <img class="card-img-top" src="{{ medium.cover_art }}" alt="{{ medium.title }}" style="width: 100%" />
+        <img class="card-img-top" src="{{ medium.cover_url }}" alt="{{ medium.title }}" style="width: 100%" />
         <div class="card-body">
           <h5 class="card-title">{{ medium.title }}</h5>
           <p class="card-text">{{ medium.release_date }}</p>
@@ -102,7 +102,7 @@
     </div>
     {% endfor %}
   </div>
-  {% endif %} {% if not media.movies and not media.tv_shows and not media.games and not media.books %}
+  {% endif %} {% if not media.movies and not media.tv_shows and not media.games and not media.books and not media.albums %}
   <p>No results found.</p>
   {% endif %}
 </div>

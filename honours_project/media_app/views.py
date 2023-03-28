@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 import requests
 from decouple import config
 import json
+from urllib.parse import urljoin
 
 # Create your views here.
 
@@ -104,7 +105,15 @@ def search_media(request):
         tv_shows = tv_data.get('Search', [])[:5] if tv_response.ok and tv_data.get('Response') == 'True' else []
         games = igdb_response.json() if igdb_response.ok else []
         books = google_books_data.get('items', []) if google_books_response.ok and google_books_data.get('totalItems', 0) > 0 else []
-        albums = musicbrainz_data.get('release-groups', [])[:5] if musicbrainz_response.ok and musicbrainz_data.get('release-groups') else []
+        albums = []
+        if musicbrainz_response.ok and musicbrainz_data.get('release-groups'):
+            for release_group in musicbrainz_data['release-groups'][:5]:
+                album = {}
+                album['title'] = release_group['title']
+                album['artist'] = release_group['artist-credit'][0]['artist']['name']
+                album['cover_url'] = urljoin('https://coverartarchive.org/release-group/', release_group['id']) + '/front-500'
+                albums.append(album)
+
 
         media = {'movies': movies, 'tv_shows': tv_shows, 'games': games, 'books': books, 'albums': albums}
 
