@@ -15,6 +15,10 @@
           <div class="card-body">
             <h5 class="card-title">{{ media.title }}</h5>
             <p class="card-text">{{ media.description|slice:":100" }}{% if media.description|length > 100 %}...{% endif %}</p>
+            <form action="{% url 'remove_from_list' medialist.id media.id %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">X</button>
+            </form>
           </div>
         </div>
       </div>

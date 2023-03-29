@@ -11,6 +11,7 @@ from decouple import config
 import json
 from urllib.parse import urljoin
 from media_app.models import Media, MediaList
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 
@@ -148,3 +149,8 @@ def add_to_list(request):
 
         return redirect('home')
 
+def remove_from_list(request, medialist_id, media_id):
+    medialist = get_object_or_404(MediaList, id=medialist_id, user=request.user)
+    media = get_object_or_404(Media, id=media_id)
+    medialist.media.remove(media)
+    return redirect('home')
