@@ -10,6 +10,7 @@ import requests
 from decouple import config
 import json
 from urllib.parse import urljoin
+from media_app.models import Media, MediaList
 
 # Create your views here.
 
@@ -127,5 +128,23 @@ def search_media(request):
 def add_to_list(request):
     if request.method == 'POST':
         title = request.POST['title']
-        # Add movie to list
-        return redirect('my_list')
+        poster_url = request.POST['poster_url']
+        description = request.POST.get('description')
+        media_type = request.POST.get('media_type')
+
+        # Check if media with same title and type already exists
+        existing_media = Media.objects.filter(title=title, media_type=media_type).first()
+
+        if existing_media:
+            # If media already exists, add it to the user's media list
+            media_list, created = MediaList.objects.get_or_create(user=request.user)
+            media_list.media.add(existing_media)
+        else:
+            # If media does not exist, create it and add it to the user's media list
+            new_media = Media(title=title, poster_url=poster_url, description=description, media_type=media_type)
+            new_media.save()
+            media_list, created = MediaList.objects.get_or_create(user=request.user)
+            media_list.media.add(new_media)
+
+        return redirect('home')
+

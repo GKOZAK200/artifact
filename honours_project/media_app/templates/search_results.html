@@ -15,6 +15,9 @@
           <form method="POST" action="{% url 'add_to_list' %}">
             {% csrf_token %}
             <input type="hidden" name="title" value="{{ medium.Title }}" />
+            <input type="hidden" name="poster_url" value="{{ medium.Poster }}" />
+            <input type="hidden" name="description" value="{{ medium.Plot }}" />
+            <input type="hidden" name="media_type" value="movie" />
             <button type="submit" class="btn btn-primary">Add to List</button>
           </form>
         </div>
@@ -35,6 +38,9 @@
           <form method="POST" action="{% url 'add_to_list' %}">
             {% csrf_token %}
             <input type="hidden" name="title" value="{{ medium.Title }}" />
+            <input type="hidden" name="poster_url" value="{{ medium.Poster }}" />
+            <input type="hidden" name="description" value="{{ medium.Plot }}" />
+            <input type="hidden" name="media_type" value="tv_show" />
             <button type="submit" class="btn btn-primary">Add to List</button>
           </form>
         </div>
@@ -55,6 +61,9 @@
           <form method="POST" action="{% url 'add_to_list' %}">
             {% csrf_token %}
             <input type="hidden" name="title" value="{{ medium.name }}" />
+            <input type="hidden" name="poster_url" value="{{ medium.cover.url }}" />
+            <input type="hidden" name="description" value="{{ medium.summary }}" />
+            <input type="hidden" name="media_type" value="game" />
             <button type="submit" class="btn btn-primary">Add to List</button>
           </form>
         </div>
@@ -75,6 +84,9 @@
           <form method="POST" action="{% url 'add_to_list' %}">
             {% csrf_token %}
             <input type="hidden" name="title" value="{{ medium.volumeInfo.title }}" />
+            <input type="hidden" name="poster_url" value="{{ medium.volumeInfo.imageLinks.thumbnail }}" />
+            <input type="hidden" name="description" value="{{ medium.volumeInfo.description }}" />
+            <input type="hidden" name="media_type" value="book" />
             <button type="submit" class="btn btn-primary">Add to List</button>
           </form>
         </div>
@@ -95,6 +107,9 @@
           <form method="POST" action="{% url 'add_to_list' %}">
             {% csrf_token %}
             <input type="hidden" name="title" value="{{ medium.title }}" />
+            <input type="hidden" name="poster_url" value="{{ medium.cover_url }}" />
+            <input type="hidden" name="description" value="{{ medium.release_date }}" />
+            <input type="hidden" name="media_type" value="album" />
             <button type="submit" class="btn btn-primary">Add to List</button>
           </form>
         </div>

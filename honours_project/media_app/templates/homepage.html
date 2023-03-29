@@ -5,8 +5,24 @@
     {% if user.is_authenticated %}
     <p>Welcome, {{ user.username }}!</p>
 
-    {% else %}
+    {% if user.medialist_set.all %}
+    <h2>My List</h2>
+    <div class="row">
+      {% for medialist in user.medialist_set.all %} {% for media in medialist.media.all %}
+      <div class="col-12 col-md-2">
+        <div class="card mb-4 box-shadow">
+          <img class="card-img-top" src="{{ media.poster_url }}" alt="{{ media.title }}" style="width: 100%" />
+          <div class="card-body">
+            <h5 class="card-title">{{ media.title }}</h5>
+            <p class="card-text">{{ media.description|slice:":100" }}{% if media.description|length > 100 %}...{% endif %}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %} {% endfor %}
+    </div>
+    {% endif %} {% else %}
     <p>Please log in or register</p>
-    {% endif %} {% endblock %}
+    {% endif %}
   </body>
 </html>
+{% endblock %}
