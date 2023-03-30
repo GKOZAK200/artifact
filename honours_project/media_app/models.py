@@ -17,7 +17,7 @@ class MediaList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     media = models.ManyToManyField('Media')
 
-class ReviewList(models.Model):
+class Ratings(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    media = models.ManyToManyField('Media')
+    media = models.ForeignKey(Media, on_delete=models.CASCADE)
     score = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)])
