@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Media, MediaList
+from .models import Media, MediaList, Ratings
 
 # Register your models here.
 
@@ -14,3 +14,11 @@ class MediaListAdmin(admin.ModelAdmin):
     list_display = ('user',)
 
 admin.site.register(MediaList, MediaListAdmin)
+
+class RatingsAdmin(admin.ModelAdmin):
+    list_display = ('user', 'media', 'score')
+    list_filter = ('user', 'media')
+    search_fields = ('user__username', 'media__title')
+    autocomplete_fields = ['user', 'media']
+
+admin.site.register(Ratings, RatingsAdmin)
