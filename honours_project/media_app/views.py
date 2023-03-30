@@ -13,6 +13,8 @@ from urllib.parse import urljoin
 from media_app.models import Media, MediaList
 from django.shortcuts import get_object_or_404
 
+PLACEHOLDER_IMG_URL = 'https://via.placeholder.com/300x444.png?text=No+Image+Available'
+
 # Create your views here.
 
 def home(request):
@@ -68,6 +70,9 @@ def search_media(request):
             movie_detail_response = requests.get('http://www.omdbapi.com/', params={'i': movie_id, 'apikey': config("OMDB_KEY")})
             movie_detail_data = movie_detail_response.json()
             movie['Plot'] = movie_detail_data.get('Plot', '')
+            # Replace the cover URL with the placeholder image URL if not available
+            if movie['Poster'] == 'N/A':
+                movie['Poster'] = PLACEHOLDER_IMG_URL
 
         # Make request to OMDb API to search for TV shows
         tv_response = requests.get('http://www.omdbapi.com/', params={'s': query, 'type': 'series', 'apikey': config("OMDB_KEY")})
@@ -79,6 +84,8 @@ def search_media(request):
             tv_show_detail_response = requests.get('http://www.omdbapi.com/', params={'i': tv_show_id, 'apikey': config("OMDB_KEY")})
             tv_show_detail_data = tv_show_detail_response.json()
             tv_show['Plot'] = tv_show_detail_data.get('Plot', '')
+            if 'N/A' in tv_show['Poster']:
+                tv_show['Poster'] = PLACEHOLDER_IMG_URL
 
         # Make request to IGDB API to search for games
         igdb_response = requests.post('https://api.igdb.com/v4/games', headers={
@@ -88,6 +95,16 @@ def search_media(request):
         print(igdb_response.json())
         igdb_data = igdb_response.json()
         games = igdb_data
+
+    # Replace the cover URL with the placeholder image URL if not available
+        for game in games:
+            if 'cover' in game and game['cover']:
+                if 'url' in game['cover'] and game['cover']['url']:
+                    game['cover_url'] = game['cover']['url']
+                else:
+                    game['cover_url'] = PLACEHOLDER_IMG_URL
+            else:
+                game['cover_url'] = PLACEHOLDER_IMG_URL
 
         # Make a request to Google Books for books
         google_books_api_key = config("GOOGLE_BOOKS_KEY")
