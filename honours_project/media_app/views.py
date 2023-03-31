@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.template import loader
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -10,7 +10,7 @@ import requests
 from decouple import config
 import json
 from urllib.parse import urljoin
-from media_app.models import Media, MediaList
+from media_app.models import Media, MediaList, Ratings, User
 from django.shortcuts import get_object_or_404
 
 PLACEHOLDER_IMG_URL = 'https://via.placeholder.com/300x444.png?text=No+Image+Available'
@@ -171,3 +171,26 @@ def remove_from_list(request, medialist_id, media_id):
     media = get_object_or_404(Media, id=media_id)
     medialist.media.remove(media)
     return redirect('home')
+
+def add_rating(request):
+    if request.method != 'POST':
+        return HttpResponseBadRequest("Invalid request method")
+    
+    user_id = request.POST.get('user_id')
+    media_id = request.POST.get('media_id')
+    score = request.POST.get('score')
+    
+    user = get_object_or_404(User, id=user_id)
+    media = get_object_or_404(Media, id=media_id)
+    
+    # Try to get an existing rating for this user and media
+    rating = Ratings.objects.filter(user=user, media=media).first()
+    if rating:
+        # Update the existing rating
+        rating.score = score
+        rating.save()
+        return HttpResponse(f"Rating updated for user {user_id} and media {media_id} with score {score}")
+    
+    # Create a new rating
+    rating = Ratings.objects.create(user=user, media=media, score=score)
+    return HttpResponse(f"Rating created for user {user_id} and media {media_id} with score {score}")
