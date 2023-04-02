@@ -59,7 +59,10 @@
     </div>
     <h2>Recommended for You</h2>
     <div class="row">
-      <!-- Recommended items -->
+      <form action="{% url 'recommend_media' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Recommend Media</button>
+      </form>
     </div>
     {% endif %} {% else %}
     <p>Please log in or register</p>

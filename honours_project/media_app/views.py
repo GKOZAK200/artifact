@@ -12,6 +12,15 @@ import json
 from urllib.parse import urljoin
 from media_app.models import Media, MediaList, Ratings, User
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
+from surprise import KNNBasic
+from surprise import Dataset
+from surprise import Reader
+from surprise.model_selection import train_test_split
+from collections import defaultdict
+import heapq
+from operator import itemgetter
+import pandas as pd
 
 PLACEHOLDER_IMG_URL = 'https://via.placeholder.com/300x444.png?text=No+Image+Available'
 
@@ -194,3 +203,84 @@ def add_rating(request):
     # Create a new rating
     rating = Ratings.objects.create(user=user, media=media, score=score)
     return redirect('home')
+
+@login_required
+def recommend_media(request):
+    # Get the current user
+    currentUser = request.user.id
+    print(f"Current user ID: {currentUser}")
+    
+    # Get the ratings data
+    ratings = Ratings.objects.filter(user=currentUser)
+    print(f"Ratings QuerySet: {ratings}")
+    
+    # Load the data into a Surprise dataset
+    reader = Reader(rating_scale=(0, 10))
+    print("Reader created")
+    
+    # Convert QuerySet to DataFrame
+    ratings_df = pd.DataFrame.from_records(ratings.values_list('user', 'media', 'score'), columns=['user', 'item', 'rating'])
+    print(f"Ratings DataFrame: {ratings_df}")
+    print(ratings_df.dtypes)
+    
+    # Load data to Dataset object
+    data = Dataset.load_from_df(ratings_df, reader)
+    print("Data loaded into Dataset object")
+    print(data)
+    
+    # Put data into training and test sets
+    trainSet = data.build_full_trainset()
+    for ui, ii, r in trainSet.all_ratings():
+        print(ui, ii, r)
+
+    
+    # Set parameters for k nearest neighbor (KNN) algorithm
+    sim_options = {'name': 'cosine', 'user_based': True}
+    
+    # Create model
+    model = KNNBasic(sim_options=sim_options)
+    print("KNN model created")
+    
+    # Fit model to training data
+    model.fit(trainSet)
+    print("Model fitted to training data")
+    
+    # Create similarity matrix between users
+    similarityMatrix = model.compute_similarities()
+    print("Similarity matrix created")
+    
+    # Get top N similar users to current user
+    testUserInnerID = trainSet.to_inner_uid(str(currentUser))
+    print(f"Current user inner ID: {testUserInnerID}")
+    similarityRow = similarityMatrix[testUserInnerID]
+    print(f"Similarity row for current user: {similarityRow}")
+    similarUsers = []
+    for innerID, score in enumerate(similarityRow):
+        if (innerID != testUserInnerID):
+            similarUsers.append((innerID, score))
+    kNeighbours = heapq.nlargest(1, similarUsers, key=lambda t: t[1])
+    print(f"Top 10 similar users: {kNeighbours}")
+    
+    # Get the media that the user has already seen
+    watched = set(ratings.values_list('media', flat=True))
+    print(f"Media watched by current user: {watched}")
+    
+    # Get the ratings of the similar users for each media that the current user has not seen
+    candidates = defaultdict(float)
+    for similarUser in kNeighbours:
+        innerID = similarUser[0]
+        userSimilarityScore = similarUser[1]
+        theirRatings = trainSet.ur[innerID]
+        for rating in theirRatings:
+            if rating[0] not in watched:
+                candidates[rating[0]] += (rating[1] / 5.0) * userSimilarityScore
+    
+    # Get the top 5 rated media
+    top5Media = []
+    for mediaID, ratingSum in sorted(candidates.items(), key=itemgetter(1), reverse=True)[:1]:
+        media = Media.objects.get(id=mediaID)
+        media.avg_rating = Ratings.objects.filter(media=media).aggregate(Avg('score'))['score__avg']
+        top5Media.append(media)
+    
+    # Render the template with the recommended media
+    return render(request, 'recommendations.html', {'media': top5Media})

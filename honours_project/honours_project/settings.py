@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'media_app',
     'crispy_forms',
     'bootstrap4',
-    'crispy_bootstrap4'
+    'crispy_bootstrap4',
+    'surprise',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
