@@ -189,8 +189,8 @@ def add_rating(request):
         # Update the existing rating
         rating.score = score
         rating.save()
-        return HttpResponse(f"Rating updated for user {user_id} and media {media_id} with score {score}")
+        return redirect('home')
     
     # Create a new rating
     rating = Ratings.objects.create(user=user, media=media, score=score)
-    return HttpResponse(f"Rating created for user {user_id} and media {media_id} with score {score}")
+    return redirect('home')

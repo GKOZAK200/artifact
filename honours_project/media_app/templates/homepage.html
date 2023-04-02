@@ -15,6 +15,11 @@
           <div class="card-body">
             <h5 class="card-title">{{ media.title }}</h5>
             <p class="card-text">{{ media.description|slice:":100" }}{% if media.description|length > 100 %}...{% endif %}</p>
+
+            {% for rating in media.ratings_set.all %} {% if rating.user == user %}
+            <p>Your rating: {{ rating.score }}</p>
+            {% endif %} {% endfor %}
+
             <form action="{% url 'add_rating' %}" method="post">
               {% csrf_token %}
               <input type="hidden" name="user_id" value="{{ user.id }}" />
