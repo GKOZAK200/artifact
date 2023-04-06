@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'crispy_bootstrap4',
     'surprise',
+    'django_extensions',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
