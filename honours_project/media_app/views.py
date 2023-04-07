@@ -204,83 +204,85 @@ def add_rating(request):
     rating = Ratings.objects.create(user=user, media=media, score=score)
     return redirect('home')
 
-@login_required
-def recommend_media(request):
-    # Get the current user
-    currentUser = request.user.id
-    print(f"Current user ID: {currentUser}")
-    
-    # Get the ratings data
-    ratings = Ratings.objects.filter(user=currentUser)
-    print(f"Ratings QuerySet: {ratings}")
-    
-    # Load the data into a Surprise dataset
-    reader = Reader(rating_scale=(0, 10))
-    print("Reader created")
-    
-    # Convert QuerySet to DataFrame
-    ratings_df = pd.DataFrame.from_records(ratings.values_list('user', 'media', 'score'), columns=['user', 'item', 'rating'])
-    print(f"Ratings DataFrame: {ratings_df}")
-    print(ratings_df.dtypes)
-    
-    # Load data to Dataset object
-    data = Dataset.load_from_df(ratings_df, reader)
-    print("Data loaded into Dataset object")
-    print(data)
-    
-    # Put data into training and test sets
-    trainSet = data.build_full_trainset()
-    for ui, ii, r in trainSet.all_ratings():
-        print(ui, ii, r)
+import pandas as pd
 
-    
+def recommend_media(request):
+    # Set current user (user the algorithm is running recommendations for)
+    currentUser = request.user.id
+
+    # Set k (How many other users are compared to current user)
+    k = 10
+
+    # Set N (How many items will be recommended to the user)
+    N = 5
+
+    # Create Surprise Dataset object
+    reader = Reader(rating_scale=(0, 10))
+    ratings = Ratings.objects.all().values('user_id', 'media_id', 'score')
+    df = pd.DataFrame.from_records(ratings)
+    surprise_data = Dataset.load_from_df(df, reader)
+
+
     # Set parameters for k nearest neighbor (KNN) algorithm
+    # Cosine similarity method is used (computes the cosine similarity between all pairs of users)
+    # User based is set to true because this is a user based algorithm instead of an item based one
     sim_options = {'name': 'cosine', 'user_based': True}
-    
+
     # Create model
-    model = KNNBasic(sim_options=sim_options)
-    print("KNN model created")
-    
+    model = KNNBasic(k=k, sim_options=sim_options)
+    trainset = surprise_data.build_full_trainset()
+
     # Fit model to training data
-    model.fit(trainSet)
-    print("Model fitted to training data")
-    
+    model.fit(trainset)
+
     # Create similarity matrix between users
     similarityMatrix = model.compute_similarities()
-    print("Similarity matrix created")
-    
+
     # Get top N similar users to current user
-    testUserInnerID = trainSet.to_inner_uid(str(currentUser))
-    print(f"Current user inner ID: {testUserInnerID}")
+    # (Alternative option to be implemented: select all users up to some similarity threshold)
+
+    # Convert user raw ID to inner ID
+    testUserInnerID = trainset.to_inner_uid(currentUser)
+
+    # Creates list of similarity value per user compared to current user
     similarityRow = similarityMatrix[testUserInnerID]
-    print(f"Similarity row for current user: {similarityRow}")
+
+    # Create list of similar users
     similarUsers = []
     for innerID, score in enumerate(similarityRow):
         if (innerID != testUserInnerID):
             similarUsers.append((innerID, score))
-    kNeighbours = heapq.nlargest(1, similarUsers, key=lambda t: t[1])
-    print(f"Top 10 similar users: {kNeighbours}")
-    
-    # Get the media that the user has already seen
-    watched = set(ratings.values_list('media', flat=True))
-    print(f"Media watched by current user: {watched}")
-    
-    # Get the ratings of the similar users for each media that the current user has not seen
+
+    # Create list of K most similar users
+    kNeighbours = heapq.nlargest(k, similarUsers, key=lambda t: t[1])
+
+    # Get the media they rated, and add up ratings for each item, weighted by user similarity
     candidates = defaultdict(float)
     for similarUser in kNeighbours:
         innerID = similarUser[0]
         userSimilarityScore = similarUser[1]
-        theirRatings = trainSet.ur[innerID]
+        theirRatings = trainset.ur[innerID]
         for rating in theirRatings:
-            if rating[0] not in watched:
-                candidates[rating[0]] += (rating[1] / 5.0) * userSimilarityScore
-    
-    # Get the top 5 rated media
-    top5Media = []
-    for mediaID, ratingSum in sorted(candidates.items(), key=itemgetter(1), reverse=True)[:1]:
-        media = Media.objects.get(id=mediaID)
-        media.avg_rating = Ratings.objects.filter(media=media).aggregate(Avg('score'))['score__avg']
-        top5Media.append(media)
-    
-    # Render the template with the recommended media
-    return render(request, 'recommendations.html', {'media': top5Media})
+            candidates[rating[0]] += (rating[1] / 5.0) * userSimilarityScore
+
+    # Build a dictionary of media the user has already seen
+    watched = {}
+    for itemID, rating in trainset.ur[testUserInnerID]:
+        watched[itemID] = 1
+
+    # Get  top N rated items from similar users:
+    pos = 0
+    recommendations = []
+    for itemID, ratingSum in sorted(candidates.items(), key=itemgetter(1), reverse=True):
+        if not itemID in watched:
+            mediaID = trainset.to_raw_iid(itemID)
+            media = Media.objects.get(id=int(mediaID))
+            media_name = media.title
+            media_poster = media.poster_url
+            media_description = media.description
+            recommendations.append({'media_id': mediaID, 'media_name': media_name, 'score': ratingSum, 'media_poster': media_poster, 'media_description': media_description})
+            pos += 1
+            if (pos > N-1):
+                break
+
+    return render(request, 'recommendations.html', {'media': recommendations})

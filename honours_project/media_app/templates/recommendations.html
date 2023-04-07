@@ -1,24 +1,19 @@
-{% extends 'base.html' %} {% block content %}
-<div class="container">
-  <h2>Recommended for You</h2>
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Top 5 Recommendations for You:</h1>
   <div class="row">
-    {% for medium in media %}
-    <div class="col-md-4">
-      <div class="card mb-4 box-shadow">
-        <img class="card-img-top" src="{{ medium.image.url }}" alt="{{ medium.title }}" />
-        <div class="card-body">
-          <h5 class="card-title">{{ medium.title }}</h5>
-          <p class="card-text">{{ medium.description }}</p>
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="btn-group">
-              <a href="{% url 'media_detail' medium.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
-            </div>
-            <small class="text-muted">{{ medium.avg_rating|default_if_none:"No ratings yet." }}/10</small>
+    {% for rec in media %}
+      <div class="col-md-2">
+        <div class="card mb-2">
+          <img class="card-img-top" src="{{ rec.media_poster }}" alt="{{ rec.media_name}">
+          <div class="card-body">
+            <h5 class="card-title">{{ rec.media_name }}</h5>
+            <p class="card-text">{{ rec.media_description }}</p>
+            <p class="card-text">Score: {{ rec.score }}</p>
           </div>
         </div>
       </div>
-    </div>
     {% endfor %}
   </div>
-</div>
 {% endblock %}
