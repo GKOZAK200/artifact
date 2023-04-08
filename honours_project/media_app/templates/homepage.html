@@ -50,7 +50,7 @@
             </form>
             <form action="{% url 'remove_from_list' medialist.id media.id %}" method="post">
               {% csrf_token %}
-              <button type="submit" class="btn btn-danger">X</button>
+              <button type="submit" class="btn btn-danger">Remove</button>
             </form>
           </div>
         </div>
