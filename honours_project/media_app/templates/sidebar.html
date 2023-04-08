@@ -3,6 +3,7 @@
     <li><a href="{% url 'home' %}">Home</a></li>
     {% if user.is_authenticated %}
     <li><a href="{% url 'search_media' %}">Search</a></li>
+    <li><a href="{% url 'recommend_media' %}">Recommendations</a></li>
     <li><a href="{% url 'logout' %}">Logout</a></li>
     {% else %}
     <li><a href="{% url 'login' %}">Login / Register</a></li>
