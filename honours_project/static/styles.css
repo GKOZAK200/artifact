@@ -25,10 +25,32 @@
 }
 
 .content {
-  margin-left: 250px;
+  margin-left: 220px;
+  padding-top: 10px;
+  padding-right: 20px;
 }
 
 html body {
   background-color: #ebebeb;
 }
 
+html button {
+  display: inline-block;
+  padding: 7px 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0069d9;
+}
+
+button:active {
+  background-color: #005cbf;
+}

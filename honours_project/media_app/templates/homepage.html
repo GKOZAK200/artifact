@@ -3,7 +3,7 @@
 <html>
   <body>
     {% if user.is_authenticated %}
-    <p>Welcome, {{ user.username }}!</p>
+    <h3>Welcome, {{ user.username }}!</h3>
 
     {% if user.medialist_set.all %}
     <h2>My List</h2>
