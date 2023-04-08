@@ -23,6 +23,10 @@ PLACEHOLDER_IMG_URL = 'https://via.placeholder.com/300x444.png?text=No+Image+Ava
 def home(request):
     return render(request, 'homepage.html', {'user': request.user})
 
+# Ratings view
+def ratings(request):
+    return render(request, 'ratings.html', {'user': request.user})
+
 # Login view that redirects to home if user is already logged in
 @login_required
 def login_view(request):
