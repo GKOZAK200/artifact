@@ -4,6 +4,7 @@
 
   {% if media.movies %}
   <h2>Movies</h2>
+  <p>Provided by OMDb</p>
   <div class="row">
     {% for medium in media.movies %}
     <div class="col-12 col-md-2">
@@ -27,6 +28,7 @@
   </div>
   {% endif %} {% if media.tv_shows %}
   <h2>TV Shows</h2>
+  <p>Provided by OMDb</p>
   <div class="row mt-4">
     {% for medium in media.tv_shows %}
     <div class="col-12 col-md-2">
@@ -50,6 +52,7 @@
   </div>
   {% endif %} {% if media.games %}
   <h2>Games</h2>
+  <p>Provided by IGDB</p>
   <div class="row mt-4">
     {% for medium in media.games %}
     <div class="col-12 col-md-2">
@@ -73,6 +76,7 @@
   </div>
   {% endif %} {% if media.books %}
   <h2>Books</h2>
+  <p>Provided by Google Books</p>
   <div class="row mt-4">
     {% for medium in media.books %}
     <div class="col-12 col-md-2">
@@ -96,6 +100,7 @@
   </div>
   {% endif %} {% if media.albums %}
   <h2>Albums</h2>
+  <p>Provided by MusicBrainz</p>
   <div class="row mt-4">
     {% for medium in media.albums %}
     <div class="col-12 col-md-2">
