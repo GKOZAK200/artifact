@@ -1,3 +1,5 @@
+# Script that generates 100 users with 10 random ratings
+
 import random
 from django.contrib.auth.models import User
 from media_app.models import Media, Ratings
@@ -12,7 +14,7 @@ for i in range(100):
     # Generate a list of 10 random media objects
     media_list = Media.objects.order_by('?')[:10]
 
-    # For each media object, generate a random rating between 1 and 5 and associate it with the user
+    # For each media object, generate a random rating between 1 and 10 and associate it with the user
     for media in media_list:
-        score = random.randint(1, 5)
+        score = random.randint(1, 10)
         Ratings.objects.create(user=user, media=media, score=score)

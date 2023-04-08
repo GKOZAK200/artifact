@@ -1,38 +1,34 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseBadRequest
-from django.template import loader
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import  HttpResponseBadRequest
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import AuthenticationForm
-from .forms import NewUserForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-import requests
-from decouple import config
-import json
-from urllib.parse import urljoin
+from .forms import NewUserForm
 from media_app.models import Media, MediaList, Ratings, User
-from django.shortcuts import get_object_or_404
-from django.db.models import Avg
-from surprise import KNNBasic
-from surprise import Dataset
-from surprise import Reader
-from surprise.model_selection import train_test_split
+from surprise import KNNBasic, Dataset, Reader
 from collections import defaultdict
 import heapq
 from operator import itemgetter
 import pandas as pd
+import requests
+from decouple import config
+from urllib.parse import urljoin
 
+# Image that shows up when no cover is provided
 PLACEHOLDER_IMG_URL = 'https://via.placeholder.com/300x444.png?text=No+Image+Available'
 
 # Create your views here.
 
+# Home view
 def home(request):
     return render(request, 'homepage.html', {'user': request.user})
 
+# Login view that redirects to home if user is already logged in
 @login_required
 def login_view(request):
     return redirect('home')
 
+# Login view
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -45,6 +41,7 @@ def login_view(request):
             messages.error(request, 'Invalid username or password.')
     return render(request, 'login.html')
 
+# Register view
 def register_request(request):
     if request.method == "POST":
         form = NewUserForm(request.POST)
@@ -56,13 +53,12 @@ def register_request(request):
     form = NewUserForm()
     return render (request=request, template_name='register.html', context={"register_form": form })
 
+# Log out view
 def logout_view(request):
     logout(request)
     return redirect('home')
 
-import requests
-from decouple import config
-
+# Searches for media across the 4 APIs and renders the results
 def search_media(request):
     if request.method == 'POST':
         # Get search query from the search bar
@@ -72,7 +68,6 @@ def search_media(request):
         movie_response = requests.get('http://www.omdbapi.com/', params={'s': query, 'type': 'movie', 'apikey': config("OMDB_KEY")})
         movie_data = movie_response.json()
         movies = movie_data.get('Search', [])
-        print (movies)
         for movie in movies:
             # Make a request for each individual movie to get the plot
             movie_id = movie['imdbID']
@@ -101,11 +96,10 @@ def search_media(request):
             'Client-ID': config("IGDB_CLIENT_ID"),
             'Authorization': f'Bearer {config("IGDB_ACCESS_TOKEN")}'
         }, data=f'search "{query}"; fields name, cover.url, summary; limit 5;')
-        print(igdb_response.json())
         igdb_data = igdb_response.json()
         games = igdb_data
 
-    # Replace the cover URL with the placeholder image URL if not available
+        # Replace the cover URL with the placeholder image URL if not available
         for game in games:
             if 'cover' in game and game['cover']:
                 if 'url' in game['cover'] and game['cover']['url']:
@@ -120,13 +114,10 @@ def search_media(request):
         google_books_url = f"https://www.googleapis.com/books/v1/volumes?key={google_books_api_key}&q={query}&maxResults=5"
         google_books_response = requests.get(google_books_url)
         google_books_data = google_books_response.json()
-        print (google_books_data)
 
         # Make a request to MusicBrainz API to search for albums
         musicbrainz_response = requests.get('https://musicbrainz.org/ws/2/release-group/', params={'query': query, 'type': 'album', 'limit': 5}, headers={'Accept': 'application/json'})
-        print(musicbrainz_response)
         musicbrainz_data = musicbrainz_response.json()
-        print(musicbrainz_data)
         
         # Parse the responses and get the media information
         movies = movie_data.get('Search', [])[:5] if movie_response.ok and movie_data.get('Response') == 'True' else []
@@ -151,7 +142,7 @@ def search_media(request):
     # If the request method is GET, render the template
     return render(request, 'search.html')
 
-
+# Add item to user's media list
 def add_to_list(request):
     if request.method == 'POST':
         title = request.POST['title']
@@ -175,12 +166,14 @@ def add_to_list(request):
 
         return redirect('home')
 
+# Removes item from user's media list
 def remove_from_list(request, medialist_id, media_id):
     medialist = get_object_or_404(MediaList, id=medialist_id, user=request.user)
     media = get_object_or_404(Media, id=media_id)
     medialist.media.remove(media)
     return redirect('home')
 
+# Adds rating to Ratings database
 def add_rating(request):
     if request.method != 'POST':
         return HttpResponseBadRequest("Invalid request method")
@@ -204,8 +197,7 @@ def add_rating(request):
     rating = Ratings.objects.create(user=user, media=media, score=score)
     return redirect('home')
 
-import pandas as pd
-
+# User based collaborative filtering algorithm that recommends N media items
 def recommend_media(request):
     # Set current user (user the algorithm is running recommendations for)
     currentUser = request.user.id
@@ -221,6 +213,7 @@ def recommend_media(request):
     ratings = Ratings.objects.all().values('user_id', 'media_id', 'score')
     df = pd.DataFrame.from_records(ratings)
     surprise_data = Dataset.load_from_df(df, reader)
+    trainset = surprise_data.build_full_trainset()
 
 
     # Set parameters for k nearest neighbor (KNN) algorithm
@@ -230,16 +223,12 @@ def recommend_media(request):
 
     # Create model
     model = KNNBasic(k=k, sim_options=sim_options)
-    trainset = surprise_data.build_full_trainset()
 
     # Fit model to training data
     model.fit(trainset)
 
     # Create similarity matrix between users
     similarityMatrix = model.compute_similarities()
-
-    # Get top N similar users to current user
-    # (Alternative option to be implemented: select all users up to some similarity threshold)
 
     # Convert user raw ID to inner ID
     testUserInnerID = trainset.to_inner_uid(currentUser)
@@ -265,16 +254,16 @@ def recommend_media(request):
         for rating in theirRatings:
             candidates[rating[0]] += (rating[1] / 5.0) * userSimilarityScore
 
-    # Build a dictionary of media the user has already seen
-    watched = {}
+    # Build a dictionary of media the user has already consumed
+    consumed = {}
     for itemID, rating in trainset.ur[testUserInnerID]:
-        watched[itemID] = 1
+        consumed[itemID] = 1
 
-    # Get  top N rated items from similar users:
+    # Get top N rated items from similar users:
     pos = 0
     recommendations = []
     for itemID, ratingSum in sorted(candidates.items(), key=itemgetter(1), reverse=True):
-        if not itemID in watched:
+        if not itemID in consumed:
             mediaID = trainset.to_raw_iid(itemID)
             media = Media.objects.get(id=int(mediaID))
             media_name = media.title
