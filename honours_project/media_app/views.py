@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import NewUserForm
 from media_app.models import Media, MediaList, Ratings, User
 from surprise import KNNBasic, Dataset, Reader, SVD
-from surprise.model_selection import cross_validate
+from surprise.model_selection import cross_validate, LeaveOneOut
 from collections import defaultdict
 import heapq
 from operator import itemgetter
@@ -279,8 +279,9 @@ def recommend_media(request):
             if (pos > N-1):
                 break
 
-    # Run 5-fold cross validation and print results
-    cv_results = cross_validate(model, surprise_data, measures=['RMSE', 'MAE'], cv=5, verbose=True)
+    # Run leave-one-out cross validation and print results
+    loo = LeaveOneOut()
+    cv_results = cross_validate(model, surprise_data, measures=['RMSE', 'MAE'], cv=loo, verbose=True)
     print(cv_results)
-    
+
     return render(request, 'recommendations.html', {'media': recommendations})
