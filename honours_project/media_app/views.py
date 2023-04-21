@@ -22,7 +22,15 @@ PLACEHOLDER_IMG_URL = 'https://via.placeholder.com/300x444.png?text=No+Image+Ava
 
 # Home view
 def home(request):
-    return render(request, 'homepage.html', {'user': request.user})
+    if request.user.is_authenticated:
+        unrated_media = Media.objects.exclude(ratings__user=request.user)
+        context = {
+            'user': request.user,
+            'unrated_media': unrated_media,
+        }
+        return render(request, 'homepage.html', context)
+    else:
+        return render(request, 'homepage.html', {'user': request.user})
 
 # Ratings view
 def ratings(request):

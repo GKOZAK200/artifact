@@ -8,7 +8,8 @@
     {% if user.medialist_set.all %}
     <h2>My List</h2>
     <div class="row">
-      {% for medialist in user.medialist_set.all %} {% for media in medialist.media.all %}
+      {% for medialist in user.medialist_set.all %}
+      {% for media in unrated_media %}
       <div class="col-12 col-md-2">
         <div class="card mb-4 box-shadow">
           <img class="card-img-top" src="{{ media.poster_url }}" alt="{{ media.title }}" style="width: 100%" />
