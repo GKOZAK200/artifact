@@ -179,10 +179,13 @@ def add_to_list(request):
 
         return redirect('home')
 
-# Removes item from user's media list
+# Removes item from user's media list and rating from ratings database
 def remove_from_list(request, medialist_id, media_id):
     medialist = get_object_or_404(MediaList, id=medialist_id, user=request.user)
     media = get_object_or_404(Media, id=media_id)
+    rating = Ratings.objects.filter(user=request.user, media=media).first()  # Get rating
+    if rating:
+        rating.delete()  # Delete rating if it exists
     medialist.media.remove(media)
     return redirect('home')
 
