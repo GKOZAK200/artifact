@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import  HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -220,6 +220,11 @@ def add_rating(request):
 def recommend_media(request):
     # Set current user (user the algorithm is running recommendations for)
     currentUser = request.user.id
+
+    # Check if user has rated anything
+    user_ratings = Ratings.objects.filter(user_id=currentUser)
+    if not user_ratings:
+        return HttpResponse("Seems that you haven't rated anything yet. Please rate some media items first and try again later.")
 
     # Set k (How many other users are compared to current user)
     k = 10
