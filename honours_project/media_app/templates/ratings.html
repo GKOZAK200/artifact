@@ -23,26 +23,18 @@
               <input type="hidden" name="user_id" value="{{ user.id }}" />
               <input type="hidden" name="media_id" value="{{ media.id }}" />
               <div class="rating">
-                <input type="radio" id="star10{{ media.id }}" name="score" value="10" />
-                <label for="star10{{ media.id }}" title="10 stars">10 stars</label>
-                <input type="radio" id="star9{{ media.id }}" name="score" value="9" />
-                <label for="star9{{ media.id }}" title="9 stars">9 stars</label>
-                <input type="radio" id="star8{{ media.id }}" name="score" value="8" />
-                <label for="star8{{ media.id }}" title="8 stars">8 stars</label>
-                <input type="radio" id="star7{{ media.id }}" name="score" value="7" />
-                <label for="star7{{ media.id }}" title="7 stars">7 stars</label>
-                <input type="radio" id="star6{{ media.id }}" name="score" value="6" />
-                <label for="star6{{ media.id }}" title="6 stars">6 stars</label>
-                <input type="radio" id="star5{{ media.id }}" name="score" value="5" />
-                <label for="star5{{ media.id }}" title="5 stars">5 stars</label>
-                <input type="radio" id="star4{{ media.id }}" name="score" value="4" />
-                <label for="star4{{ media.id }}" title="4 stars">4 stars</label>
-                <input type="radio" id="star3{{ media.id }}" name="score" value="3" />
-                <label for="star3{{ media.id }}" title="3 stars">3 stars</label>
-                <input type="radio" id="star2{{ media.id }}" name="score" value="2" />
-                <label for="star2{{ media.id }}" title="2 stars">2 stars</label>
-                <input type="radio" id="star1{{ media.id }}" name="score" value="1" />
-                <label for="star1{{ media.id }}" title="1 star">1 star</label>
+                <select name="score">
+                  <option value="10">10 stars</option>
+                  <option value="9">9 stars</option>
+                  <option value="8">8 stars</option>
+                  <option value="7">7 stars</option>
+                  <option value="6">6 stars</option>
+                  <option value="5">5 stars</option>
+                  <option value="4">4 stars</option>
+                  <option value="3">3 stars</option>
+                  <option value="2">2 stars</option>
+                  <option value="1">1 star</option>
+                </select>
               </div>
               <button type="submit" class="btn btn-primary">Rate</button>
             </form>
