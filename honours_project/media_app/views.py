@@ -3,6 +3,7 @@ from django.http import  HttpResponseBadRequest
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Subquery, OuterRef
 from .forms import NewUserForm
 from media_app.models import Media, MediaList, Ratings, User
 from surprise import KNNBasic, Dataset, Reader, SVD
@@ -23,7 +24,9 @@ PLACEHOLDER_IMG_URL = 'https://via.placeholder.com/300x444.png?text=No+Image+Ava
 # Home view
 def home(request):
     if request.user.is_authenticated:
-        unrated_media = Media.objects.exclude(ratings__user=request.user)
+        media_in_medialist = Media.objects.filter(medialist__user=request.user)
+        unrated_media = Media.objects.filter(
+            id__in=Subquery(media_in_medialist.values('id')),).exclude(ratings__user=request.user)
         context = {
             'user': request.user,
             'unrated_media': unrated_media,
