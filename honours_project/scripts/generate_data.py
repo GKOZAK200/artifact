@@ -1,18 +1,23 @@
-# Script that generates 100 users with 10 random ratings
-
 import random
+import string
 from django.contrib.auth.models import User
 from media_app.models import Media, Ratings
 
-# Generate 100 users
-for i in range(100):
-    # Create a user
-    username = f"user{i+1}"
-    password = "password123"  # You may want to generate a random password for each user
+# Define the number of users and the number of ratings per user
+N = 300  # Number of users
+K = 8   # Number of ratings per user
+
+# Generate N users
+for i in range(N):
+    # Generate a random username and password for each user
+    username = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+    password = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=10))
+
+    # Create a new user with the generated username and password
     user = User.objects.create_user(username=username, password=password)
 
-    # Generate a list of 10 random media objects
-    media_list = Media.objects.order_by('?')[:10]
+    # Generate a list of K random media objects
+    media_list = Media.objects.order_by('?')[:K]
 
     # For each media object, generate a random rating between 1 and 10 and associate it with the user
     for media in media_list:
