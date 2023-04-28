@@ -135,5 +135,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = ''
 
 # https://learndjango.com/tutorials/django-favicon-tutorial
+# https://icons8.com/icon/9737/clapperboard (favicon source)
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
